@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Thiệp Mời Tiệc Chia Tay</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --env-w: 380px;
+            --env-h: 250px;
+            --card-w: 230px;
+            --card-h: 370px;
+            --gold: #A07830;
+            --gold-light: #C49A50;
+            --paper: #FFF8F0;
+            --paper-dark: #F0E2C8;
+            --ink: #1A0F00;
+            --ink-soft: #4A3520;
+            --accent: #7B2D2D;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body { width: 100%; height: 100%; }
+
+        body {
+            font-family: "DM Sans", sans-serif;
+            background-color: #1E1530;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1.5px 1.5px at 8%  15%, rgba(255,230,180,.7) 0%, transparent 100%),
+                radial-gradient(1px   1px   at 25% 75%, rgba(255,230,180,.5) 0%, transparent 100%),
+                radial-gradient(2px   2px   at 48%  8%, rgba(255,230,180,.8) 0%, transparent 100%),
+                radial-gradient(1px   1px   at 68% 55%, rgba(255,230,180,.6) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 82% 28%, rgba(255,230,180,.7) 0%, transparent 100%),
+                radial-gradient(1px   1px   at 18% 48%, rgba(255,230,180,.4) 0%, transparent 100%),
+                radial-gradient(2px   2px   at 58% 88%, rgba(255,230,180,.6) 0%, transparent 100%),
+                radial-gradient(1px   1px   at 38% 38%, rgba(255,230,180,.5) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 92% 72%, rgba(255,230,180,.7) 0%, transparent 100%),
+                radial-gradient(1px   1px   at 12% 92%, rgba(255,230,180,.4) 0%, transparent 100%),
+                radial-gradient(1px   1px   at 75%  5%, rgba(255,230,180,.5) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 55% 45%, rgba(255,230,180,.3) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* Confetti */
+        .particles { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+        .particle  { position: absolute; opacity: 0; animation: fall linear infinite; }
+
+        @keyframes fall {
+            0%   { transform: translateY(-20px) rotate(0deg);   opacity: .9; }
+            100% { transform: translateY(110vh)  rotate(720deg); opacity: 0;  }
+        }
+
+        /* Scene — scales everything together */
+        .scene {
+            width: var(--env-w);
+            height: var(--env-h);
+            position: relative;
+            transform-origin: center center;
+        }
+
+        /* Envelope */
+        .envelope {
+            width: var(--env-w);
+            height: var(--env-h);
+            background: linear-gradient(140deg, var(--paper) 0%, var(--paper-dark) 100%);
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 0 1px var(--gold), 0 24px 64px rgba(0,0,0,.55), 0 6px 20px rgba(0,0,0,.3);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .envelope-hint {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: rgba(255,230,180,.5);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+            transition: opacity .4s;
+        }
+        .envelope.is-open .envelope-hint { opacity: 0; }
+
+        .envelope::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-top:    calc(var(--env-h) * .372) solid transparent;
+            border-right:  calc(var(--env-w) * .5)   solid var(--paper-dark);
+            border-bottom: calc(var(--env-h) * .628) solid var(--paper-dark);
+            border-left:   calc(var(--env-w) * .5)   solid var(--paper-dark);
+        }
+
+        .envelope-lid { position: absolute; inset: 0; z-index: 1; }
+        .envelope-lid::before, .envelope-lid::after {
+            content: ''; position: absolute; top: 0; width: 1px;
+            height: calc(100% - 40px); background: var(--gold); opacity: .35;
+        }
+        .envelope-lid::before { left: 0;  transform: rotate(-58.5deg); transform-origin: top left; }
+        .envelope-lid::after  { right: 0; transform: rotate(58.5deg);  transform-origin: top right; }
+
+        .envelope-lid-secondary {
+            background: linear-gradient(160deg, var(--paper-dark) 60%, #D9C090 100%);
+            clip-path: polygon(50% 38%, 0 0, 100% 0);
+            transition: transform 500ms 100ms;
+            transform-origin: top;
+            z-index: 2;
+        }
+
+        .envelope.is-open   .envelope-lid-secondary { transform: rotateX(180deg); animation: open-lid-stacking  500ms  forwards; }
+        .envelope.is-closed .envelope-lid-secondary {                              animation: close-lid-stacking 1250ms forwards; }
+
+        @keyframes open-lid-stacking  { 50% { z-index: 1;  } 100% { z-index: -1; } }
+        @keyframes close-lid-stacking { 0%, 50% { z-index: -2; } 100% { z-index: 1; } }
+
+        /* Card wrapper */
+        .card-wrapper { perspective: 1000px; transform: rotate(-90deg); }
+
+        .envelope.is-open   .card-wrapper { animation: show-card 1000ms 600ms forwards; }
+        .envelope.is-closed .card-wrapper { animation: hide-card 1000ms      forwards;  }
+
+        @keyframes show-card {
+            50%  { transform: translateY(-75%) rotate(-90deg); z-index: -1; }
+            100% { transform: translateY(0)    rotate(0deg);   z-index: 10; }
+        }
+        @keyframes hide-card {
+            0%   { z-index: 10; transform: rotate(0deg); }
+            50%  { transform: translateY(-75%) rotate(-90deg); z-index: -1; }
+            100% { transform: translateY(0)    rotate(-90deg); }
+        }
+
+        /* Card */
+        .card {
+            width: var(--card-w);
+            height: var(--card-h);
+            background: var(--paper);
+            border: 1px solid var(--gold);
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: transform 250ms;
+            box-shadow: inset 5px 0 10px rgba(0,0,0,.06);
+        }
+
+        .envelope.is-open .card { transform: rotateY(-15deg); transition-delay: 1750ms; }
+
+        .card-cover {
+            position: absolute; inset: 0;
+            outline: 1px solid var(--gold);
+            transform-style: preserve-3d;
+            transform-origin: left;
+            transition: transform 500ms 0ms;
+        }
+        .envelope.is-open .card-cover { transform: rotateY(-135deg); transition-delay: 2250ms; }
+
+        .card-side {
+            position: absolute; inset: 0;
+            backface-visibility: hidden;
+            background: linear-gradient(160deg, var(--paper) 0%, var(--paper-dark) 100%);
+            display: grid; place-items: center; overflow: hidden;
+        }
+        .card-side-secondary { transform: rotateY(180deg); box-shadow: inset -5px 0 10px rgba(0,0,0,.06); }
+
+        .card-side-primary::before, .card-side-primary::after {
+            content: ''; position: absolute;
+            width: 36px; height: 36px;
+            border-color: var(--gold-light); border-style: solid; opacity: .7;
+        }
+        .card-side-primary::before { top: 10px;    left: 10px;  border-width: 1px 0 0 1px; }
+        .card-side-primary::after  { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+        /* Card front text */
+        .card-title { text-align: center; user-select: none; padding: 14px 12px; }
+
+        .card-title-eyebrow {
+            display: block;
+            font-family: "DM Sans", sans-serif;
+            font-size: 9px; font-weight: 500;
+            letter-spacing: 3.5px; text-transform: uppercase;
+            color: var(--gold); margin-bottom: 10px;
+        }
+        .card-title-main {
+            display: block;
+            font-family: "Playfair Display", serif;
+            font-size: 40px; font-weight: 700; font-style: italic;
+            color: var(--ink); line-height: 1.05;
+        }
+        .card-title-sub {
+            display: block;
+            font-family: "EB Garamond", serif;
+            font-size: 13px; font-weight: 400;
+            color: var(--ink-soft); margin-top: 8px; letter-spacing: .5px;
+        }
+        .card-divider {
+            width: 52px; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+            margin: 10px auto;
+        }
+        .card-icon { font-size: 24px; margin: 4px 0; display: block; }
+
+        /* Card body text */
+        .card-body { padding: 14px 14px; font-family: "EB Garamond", serif; }
+
+        .card-body p {
+            font-size: 12px; font-weight: 400;
+            color: var(--ink); line-height: 1.65;
+        }
+        .card-body p + p { margin-top: 7px; }
+
+        .card-body .highlight { font-style: italic; font-weight: 500; color: var(--accent); }
+
+        .card-body .details {
+            margin-top: 10px; padding-top: 10px;
+            border-top: 1px solid rgba(160,120,48,.3);
+        }
+        .card-body .details p {
+            font-family: "DM Sans", sans-serif;
+            font-size: 10.5px; font-weight: 400;
+            color: var(--ink-soft); line-height: 1.75;
+        }
+
+        /* Wax seal */
+        .wax-seal {
+            position: absolute; top: 36%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 46px; height: 46px;
+            background: radial-gradient(circle at 35% 35%, #C0392B, #7B1515);
+            border-radius: 50%; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,.45), inset 0 1px 3px rgba(255,255,255,.15);
+            transition: opacity .3s ease; cursor: pointer;
+        }
+        .wax-seal::before {
+            content: ''; position: absolute; inset: 4px;
+            border-radius: 50%; border: 1px solid rgba(255,255,255,.18);
+        }
+
+        /* ── Responsive scaling ── */
+        @media (max-width: 420px)  { .scene { transform: scale(.78); } }
+        @media (max-width: 360px)  { .scene { transform: scale(.65); } }
+        @media (max-width: 320px)  { .scene { transform: scale(.58); } }
+        @media (max-height: 480px) and (orientation: landscape) { .scene { transform: scale(.60); } }
+        @media (min-width: 768px)  { .scene { transform: scale(1.1);  } }
+        @media (min-width: 1200px) { .scene { transform: scale(1.3);  } }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="scene">
+        <div class="envelope" id="envelope">
+            <div class="envelope-lid"></div>
+            <div class="envelope-lid envelope-lid-secondary"></div>
+
+            <div class="card-wrapper">
+                <div class="card">
+                    <div class="card-cover">
+    <div class="card-side card-side-primary">
+        <div class="card-title">
+            <span class="card-title-eyebrow">Trân trọng kính mời</span>
+            <span class="card-icon">🥂</span>
+            <span class="card-title-main">Tiệc<br>Chia Tay</span>
+            <div class="card-divider"></div>
+            <span class="card-title-sub">Buổi gặp gỡ trưa trang trọng</span>
+        </div>
+    </div>
+    <div class="card-side card-side-secondary"></div>
+</div>
+<div class="card-body">
+    <p>Kính gửi Anh Viên,</p>
+    <p>Sau một chặng đường đồng hành, em xin trân trọng kính mời Anh tham dự buổi tiệc chia tay vào trưa ngày 27 tháng 2 năm 2026. Đây là dịp để cùng nhau nhìn lại những kỷ niệm, chia sẻ niềm vui và gửi lời chúc tốt đẹp nhất đến nhau trước khi mỗi người tiếp tục hành trình riêng.</p>
+    <p>Sự hiện diện của Anh là niềm vinh dự và ý nghĩa lớn lao đối với em.</p>
+    <div class="details">
+        <p>📅 &nbsp;Thứ Sáu, ngày 27 tháng 2 năm 2026</p>
+        <p>🕛 &nbsp;12:00 trưa</p>
+        <p>📍 &nbsp;Nhà hàng Thế Nguyễn</p>
+    </div>
+</div>
+                </div>
+            </div>
+
+            <div class="wax-seal" id="waxSeal">🕊️</div>
+            <span class="envelope-hint">Nhấn để mở</span>
+        </div>
+    </div>
+
+    <script>
+        // Confetti
+        const container = document.getElementById('particles');
+        const colors = ['#F2C94C','#EB5757','#6FCF97','#9B51E0','#F2994A','#56CCF2'];
+        for (let i = 0; i < 35; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDuration = (4 + Math.random() * 7) + 's';
+            p.style.animationDelay = (Math.random() * 10) + 's';
+            p.style.width  = (4 + Math.random() * 5) + 'px';
+            p.style.height = (4 + Math.random() * 5) + 'px';
+            p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            container.appendChild(p);
+        }
+
+        // Click toggle
+        const envelope = document.getElementById('envelope');
+        const waxSeal  = document.getElementById('waxSeal');
+        let isOpen = false;
+
+        envelope.addEventListener('click', () => {
+            isOpen = !isOpen;
+            if (isOpen) {
+                envelope.classList.remove('is-closed');
+                envelope.classList.add('is-open');
+                waxSeal.style.opacity = '0';
+            } else {
+                envelope.classList.remove('is-open');
+                envelope.classList.add('is-closed');
+                setTimeout(() => { waxSeal.style.opacity = '1'; }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>
